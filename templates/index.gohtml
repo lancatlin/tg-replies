@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Telegram 留言板</title>
+	</head>
+	<body>
+		<script>
+			function send() {
+				let xhttp = new XMLHttpRequest()
+				let content = document.getElementById("entry").value
+				xhttp.onreadystatechange = function() {
+					console.log(this.responseText)
+					if (this.readyState == 4) {
+						switch (this.status) {
+							case 200:
+								console.log("200")
+								let p = document.createElement('p')
+								p.textContent = this.responseText
+								let list = document.getElementById("replies")
+								list.insertBefore(p, list.childNodes[0])
+								document.getElementById("entry").value = ""
+								break
+							case 401:
+								alert("未登入")
+								break;
+							case 500:
+								alert("伺服器發生錯誤")
+								break
+						}
+					}
+				}
+				xhttp.open("POST", "/", true)
+				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
+				xhttp.send('reply=' + content)
+			}
+		</script>
+		<h1>Room: {{.Room.ID}}</h1>
+		<input type="text" id="entry"><button onclick="send()">發送</button>
+		<li id="replies">
+		{{range .Replies}}	
+			<p>{{short .CreatedAt}} - {{.Content}}</p>
+		{{end}}
+		</li>
+	</body>
+</html>
