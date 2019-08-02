@@ -4,10 +4,23 @@
 		<title>Telegram 留言板</title>
 	</head>
 	<body>
+		<h1>Room: {{.Room.ID}}</h1>
+		<a href="/logout">登出</a>
+		<form id="form">
+			顯示名稱：<input type="text" id="user"><br>
+			訊息<input type="text" id="entry"><input type="submit" value="發送">
+		</form>
+		<li id="replies">
+		{{range .Replies}}	
+			<p>{{short .CreatedAt}} &lt{{.User}}&gt {{.Content}}</p>
+		{{end}}
+		</li>
 		<script>
-			function send() {
+			document.getElementById("form").onsubmit = send
+			function send(event) {
 				let xhttp = new XMLHttpRequest()
 				let content = document.getElementById("entry").value
+				let user = document.getElementById("user").value
 				xhttp.onreadystatechange = function() {
 					console.log(this.responseText)
 					if (this.readyState == 4) {
@@ -31,15 +44,9 @@
 				}
 				xhttp.open("POST", "/", true)
 				xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded")
-				xhttp.send('reply=' + content)
+				xhttp.send('reply=' + content + '&user=' + user)
+				event.preventDefault()
 			}
 		</script>
-		<h1>Room: {{.Room.ID}}</h1>
-		<input type="text" id="entry"><button onclick="send()">發送</button>
-		<li id="replies">
-		{{range .Replies}}	
-			<p>{{short .CreatedAt}} - {{.Content}}</p>
-		{{end}}
-		</li>
 	</body>
 </html>
