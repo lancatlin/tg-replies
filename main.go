@@ -10,11 +10,11 @@ import (
 )
 
 type Room struct {
-	ID        string `form:"room_name" gorm:"primary_key"`
+	ID        string `gorm:"primary_key"`
 	CreatedAt time.Time
 	Replies   []Reply
 	IsLogin   bool   `gorm:"-"`
-	Password  []byte `form:"password"`
+	Password  []byte
 }
 
 type Session struct {
@@ -41,7 +41,7 @@ func index(c *gin.Context) {
 		return
 	}
 	var replies []Reply
-	if err := db.Model(&room).Related(&replies).Order("created_at desc").Limit(20).Find(&replies).Error; err != nil {
+	if err := db.Where("room_id = ?", room.ID).Order("created_at desc").Limit(20).Find(&replies).Error; err != nil {
 		c.Error(err)
 		return
 	}
@@ -79,7 +79,7 @@ func short(t time.Time) string {
 
 func init() {
 	var err error
-	db, err = gorm.Open("sqlite3", "test.sqlite")
+	db, err = gorm.Open("sqlite3", "data/data.sqlite")
 	if err != nil {
 		log.Fatal("Open database fatal:", err)
 	}
